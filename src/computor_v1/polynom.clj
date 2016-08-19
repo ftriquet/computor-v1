@@ -2,7 +2,12 @@
   (:require [clojure.math.numeric-tower :as math]
             [clojure.string]))
 
+(defn sum [p1 p2]
+  (merge-with + p1 p2))
 
+
+(defn to-list [p]
+  (list (get p 0 0) (get p 1 0) (get p 2 0)))
 
 (defn delta [[c b a]]
   (- (* b b) (* 4 a c)))
@@ -10,11 +15,13 @@
 (defn solve [p]
   (let [d (delta p)
         [c b a] p]
-    (if (> d 0)
-      (list {:re (/ (- (- b) (math/sqrt d)) (* 2 a)) :im 0}
-            {:re (/ (+ (- b) (math/sqrt d)) (* 2 a)) :im 0})
-      (list {:re (/ (- b) (* 2 a)) :im (/ (- (math/sqrt (- d))) (* 2 a))}
-            {:re (/ (- b) (* 2 a)) :im (/ (math/sqrt (- d)) (* 2 a))}))))
+    (if (= a 0)
+      (list {:re (/ c b)})
+      (if (>= d 0)
+        (list {:re (/ (- (- b) (math/sqrt d)) (* 2 a))}
+              {:re (/ (+ (- b) (math/sqrt d)) (* 2 a))})
+        (list {:re (/ (- b) (* 2 a)) :im (/ (- (math/sqrt (- d))) (* 2 a))}
+              {:re (/ (- b) (* 2 a)) :im (/ (math/sqrt (- d)) (* 2 a))})))))
 
 
 (defn split-terms [string]
@@ -37,21 +44,54 @@
         (list (cond (= "+" coef) 1.0
                     (= "-" coef) -1.0
                     :else (Float. coef))
-              (if (nil? power) 1
-                (Integer. (clojure.string/replace power #"\^" "")) ))
+              (if (nil? power)
+                1
+                (Integer. (clojure.string/replace power #"\^" ""))))
         nil))))
 
 (defn term->pol [[coef power :as term]]
-  (println term)
-  (cond
-    (nil? term) nil
-    (some #{0 1 2} [power]) (case power
-                              0 (list coef 0 0)
-                              1 (list 0 coef 0)
-                              2 (list 0 0 coef))
-    :else nil))
+  (when term (hash-map power coef)))
+
+(defn reduce-terms [terms]
+  "Merges a list of term into a single map representing a polynom"
+  (reduce (fn [h v]
+            (let [[power] (keys v)
+                  [coef]  (vals v)]
+              (if (h power)
+                (assoc h power (+ (h power) coef))
+                (assoc h power coef))))
+          {}
+          terms))
+
+(defn substract [p1 p2]
+  (loop [res p1
+         [key & rest :as k] (keys p2)]
+    (cond
+      (empty? k) res
+      (res key) (recur (assoc res key (- (res key) (p2 key))) rest)
+      :else (recur (assoc res key (- (p2 key))) rest))))
 
 (defn parse-polynom [string]
-  (let [terms (map term->pol (map extract-term (split-terms string)))]
-    (if (some nil? terms) nil
-      (apply (partial map +) terms))))
+  "Takes the string form of a polynom and returns a hash mapping degrees to coefficients"
+  (let [terms (->> (split-terms string)
+                   (filter #(not= "+" %))
+                   (filter #(not= "-" %))
+                   (map extract-term)
+                   (map term->pol))]
+    (cond
+      (some number? terms) (some #(when (number? %) %) terms)
+      (some nil? terms) nil
+      :else (reduce-terms terms))))
+
+(defn parse-line [line]
+  (let [s (clojure.string/replace line #" " "")
+        [match left-term right-term] (re-matches #"(.+)=(.+)" s)]
+    (when match
+      (let [left  (parse-polynom left-term)
+            right (parse-polynom right-term)]
+        (if (or (nil? left) (nil? right))
+          nil
+          (substract left right))))))
+
+(defn infinite-solutions [p]
+  (every? (fn [coef] (= 0.0 coef)) (vals p)))
