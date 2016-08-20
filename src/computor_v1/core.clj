@@ -13,17 +13,15 @@
     (> b 0) (str a " + " b "i")
     :else   (str a " - " (- b) "i")))
 
-(defn print-reducted-form [p]
+(defn pr-reduct [p]
   (print "Reducted form: ")
-  (let [sorted (into (sorted-map-by <) p)]
-    (doseq [[power coef] (map identity sorted)]
-      (if (= 0 power)
-        (print (str coef "*X^" power " "))
-        (cond (> coef 0.0) (print (str "+ " coef "*X^" power " "))
-              (< coef 0.0) (print (str "- " (- coef) "*X^" power " "))
-              )))
-    (println "= 0")))
-
+  (doseq [[power coef] (into (sorted-map-by <) p)]
+    (if (= 0 power)
+      (print (str coef "*X^" power " "))
+      (cond (> coef 0.0) (print (str "+ " coef "*X^" power " "))
+            (< coef 0.0) (print (str "- " (- coef) "*X^" power " "))
+            )))
+  (println "= 0"))
 
 (defn -main
   [& args]
@@ -33,9 +31,10 @@
       (println "This polynom has an infinite number of solutions")
       (cond
         (nil? p) (fail "Invalid parameter")
-        (not-every? #(or (or (or (= % 0) (= % 1)) (= % 2)) (= ( p %) 0.0) ) (keys p)) (fail "Polynome degree is too high")
+        (not-every? #(or (or (or (= % 0) (= % 1)) (= % 2)) (= (p %) 0.0) ) (keys p)) (fail "Polynome degree is too high")
         :else (let [[x1 x2 :as roots] (->> p (to-list) (solve))]
-                (print-reducted-form p)
+                (pr-reduct p)
+                (println "Polynom degree: " (apply max (filter #(not= 0.0 (p %)) (keys p))))
                 (if (nil? x2)
                   (println (str "One root: " (:re x1)))
                   (if (= x1 x2)
