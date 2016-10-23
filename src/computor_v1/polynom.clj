@@ -16,7 +16,7 @@
   (let [d (delta p)
         [c b a] p]
     (if (= a 0)
-      (list {:re (/ c b)})
+      (list {:re (- (/ c b))})
       (if (>= d 0)
         (list {:re (/ (- (- b) (math/sqrt d)) (* 2 a))}
               {:re (/ (+ (- b) (math/sqrt d)) (* 2 a))})
