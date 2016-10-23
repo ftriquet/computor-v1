@@ -27,16 +27,15 @@
   [& args]
   (when (not= (count args) 1) (computor-v1.core/fail "Invalid number of arguments"))
   (let [p (parse-line (first args))]
-    (if (infinite-solutions p)
-      (println "This polynom has an infinite number of solutions")
-      (cond
-        (nil? p) (fail "Invalid parameter")
-        (not-every? #(or (or (or (= % 0) (= % 1)) (= % 2)) (= (p %) 0.0) ) (keys p)) (fail "Polynome degree is too high")
-        :else (let [[x1 x2 :as roots] (->> p (to-list) (solve))]
-                (pr-reduct p)
-                (println "Polynom degree: " (apply max (filter #(not= 0.0 (p %)) (keys p))))
-                (if (nil? x2)
-                  (println (str "One root: " (:re x1)))
-                  (if (= x1 x2)
-                    (println "One double root: " (:re x1))
-                    (println "Two roots: " (format-cmplx x1) ", " (format-cmplx x2)))))))))
+    (cond
+      (nil? p)  (fail "Invalid polynom format")
+      (infinite-solutions p) (println "This polynom has an infinite number of solutions")
+      (not-every? #(or (or (or (= % 0) (= % 1)) (= % 2)) (= (p %) 0.0) ) (keys p)) (fail "Polynome degree is too high")
+      :else (let [[x1 x2 :as roots] (->> p (to-list) (solve))]
+              (pr-reduct p)
+              (println "Polynom degree: " (apply max (filter #(not= 0.0 (p %)) (keys p))))
+              (if (nil? x2)
+                (println (str "One root: " (:re x1)))
+                (if (= x1 x2)
+                  (println "One double root: " (:re x1))
+                  (println "Two roots: " (format-cmplx x1) ", " (format-cmplx x2))))))))
