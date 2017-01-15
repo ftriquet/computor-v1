@@ -1,6 +1,5 @@
 (ns computor-v1.polynom
-  (:require [clojure.math.numeric-tower :as math]
-            [clojure.string]))
+  (:require [clojure.string]))
 
 (defn sum [p1 p2]
   (merge-with + p1 p2))
@@ -13,7 +12,7 @@
   (- (* b b) (* 4 a c)))
 
 (defn initial-guess [x]
-  (loop [i 1]
+  (loop [i 0.0]
 	(if (= (* i i) x)
 		i
 		(if (> (* i i) x)
@@ -32,13 +31,17 @@
 (defn solve [p]
   (let [d (delta p)
         [c b a] p]
-    (if (= a 0)
+    (if (or (= a 0) (= a 0.0))
       (list {:re (- (/ c b))})
       (if (>= d 0)
         (list {:re (/ (- (- b) (babylonian-sqrt d)) (* 2 a))}
               {:re (/ (+ (- b) (babylonian-sqrt d)) (* 2 a))})
-        (list {:re (/ (- b) (* 2 a)) :im (/ (- (babylonian-sqrt (- d))) (* 2 a))}
-              {:re (/ (- b) (* 2 a)) :im (/ (babylonian-sqrt (- d)) (* 2 a))})))))
+		(do
+		  (println (str "Negative discrimant, complex solutions"))
+          (list {:re (/ (- b) (* 2 a)) :im (/ (- (babylonian-sqrt (- d))) (* 2 a))}
+                {:re (/ (- b) (* 2 a)) :im (/ (babylonian-sqrt (- d)) (* 2 a))})
+		)
+		))))
 
 
 (defn split-terms [string]
