@@ -116,3 +116,13 @@
 
 (defn infinite-solutions [p]
   (every? (fn [coef] (= 0.0 coef)) (vals p)))
+
+(defn nil-or-zero [v]
+  (or (nil? v) (= 0 v) (= 0.0 v)))
+
+(defn no-solutions [p]
+(println p)
+  (and (nil-or-zero (p 1)) (nil-or-zero (p 2))
+   (not= 0.0 (p 0))
+  )
+)

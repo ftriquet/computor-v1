@@ -30,6 +30,11 @@
     (cond
       (nil? p)  (fail "Invalid polynom format")
       (infinite-solutions p) (println "This polynom has an infinite number of solutions")
+	  (no-solutions p) (do
+	      (pr-reduct p)
+		  (println "Polynom degree: " (apply max (filter #(not= 0.0 (p %)) (keys p))))
+		  (println "This polynom has no solutions")
+	  )
       (not-every? #(or (or (or (= % 0) (= % 1)) (= % 2)) (= (p %) 0.0) ) (keys p))
 	    (do
 	      (pr-reduct p)
