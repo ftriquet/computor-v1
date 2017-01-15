@@ -12,16 +12,33 @@
 (defn delta [[c b a]]
   (- (* b b) (* 4 a c)))
 
+(defn initial-guess [x]
+  (loop [i 1]
+	(if (= (* i i) x)
+		i
+		(if (> (* i i) x)
+		i
+		(recur (inc i))))))
+
+(defn babylonian-sqrt [s]
+  (let [x0 (initial-guess s) threshold 0.0001]
+	(if (= (* x0 x0) s)
+	  x0
+	  (loop [xn x0]
+		(if (< (- (* xn xn) s) threshold)
+		  xn
+		  (recur (* 0.5 (+ xn (/ s xn)))))))))
+
 (defn solve [p]
   (let [d (delta p)
         [c b a] p]
     (if (= a 0)
       (list {:re (- (/ c b))})
       (if (>= d 0)
-        (list {:re (/ (- (- b) (math/sqrt d)) (* 2 a))}
-              {:re (/ (+ (- b) (math/sqrt d)) (* 2 a))})
-        (list {:re (/ (- b) (* 2 a)) :im (/ (- (math/sqrt (- d))) (* 2 a))}
-              {:re (/ (- b) (* 2 a)) :im (/ (math/sqrt (- d)) (* 2 a))})))))
+        (list {:re (/ (- (- b) (babylonian-sqrt d)) (* 2 a))}
+              {:re (/ (+ (- b) (babylonian-sqrt d)) (* 2 a))})
+        (list {:re (/ (- b) (* 2 a)) :im (/ (- (babylonian-sqrt (- d))) (* 2 a))}
+              {:re (/ (- b) (* 2 a)) :im (/ (babylonian-sqrt (- d)) (* 2 a))})))))
 
 
 (defn split-terms [string]
