@@ -30,7 +30,11 @@
     (cond
       (nil? p)  (fail "Invalid polynom format")
       (infinite-solutions p) (println "This polynom has an infinite number of solutions")
-      (not-every? #(or (or (or (= % 0) (= % 1)) (= % 2)) (= (p %) 0.0) ) (keys p)) (fail "Polynome degree is too high")
+      (not-every? #(or (or (or (= % 0) (= % 1)) (= % 2)) (= (p %) 0.0) ) (keys p))
+	    (do
+	      (pr-reduct p)
+		  (println "Polynom degree: " (apply max (filter #(not= 0.0 (p %)) (keys p))))
+		  (fail "Polynome degree is too high"))
       :else (let [[x1 x2 :as roots] (->> p (to-list) (solve))]
               (pr-reduct p)
               (println "Polynom degree: " (apply max (filter #(not= 0.0 (p %)) (keys p))))

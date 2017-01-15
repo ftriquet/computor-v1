@@ -34,13 +34,14 @@
     (if (or (= a 0) (= a 0.0))
       (list {:re (- (/ c b))})
       (if (>= d 0)
-        (list {:re (/ (- (- b) (babylonian-sqrt d)) (* 2 a))}
-              {:re (/ (+ (- b) (babylonian-sqrt d)) (* 2 a))})
+	  	(do
+		  (println (str "Positive discrimant, real solution(s)"))
+          (list {:re (/ (- (- b) (babylonian-sqrt d)) (* 2 a))}
+                {:re (/ (+ (- b) (babylonian-sqrt d)) (* 2 a))}))
 		(do
-		  (println (str "Negative discrimant, complex solutions"))
+		  (println (str "Negative discrimant, complex solution(s)"))
           (list {:re (/ (- b) (* 2 a)) :im (/ (- (babylonian-sqrt (- d))) (* 2 a))}
-                {:re (/ (- b) (* 2 a)) :im (/ (babylonian-sqrt (- d)) (* 2 a))})
-		)
+                {:re (/ (- b) (* 2 a)) :im (/ (babylonian-sqrt (- d)) (* 2 a))}))
 		))))
 
 
