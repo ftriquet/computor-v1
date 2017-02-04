@@ -121,8 +121,5 @@
   (or (nil? v) (= 0 v) (= 0.0 v)))
 
 (defn no-solutions [p]
-(println p)
   (and (nil-or-zero (p 1)) (nil-or-zero (p 2))
-   (not= 0.0 (p 0))
-  )
-)
+   (not= 0.0 (p 0))))
